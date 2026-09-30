@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#24251f">
+<title>iXpert 15 Pro Max - Studio Editor</title>
+
+<style>
+:root{
+    --accent:#2bd6a0;
+    --accent2:#1fbf8e;
+    --gold:#ffd21c;
+    --gold2:#f0a800;
+    --bg:#161914;
+    --card:rgba(30,32,25,.66);
+    --line:rgba(255,255,255,.16);
+    --muted:rgba(255,255,255,.62);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+    min-height:100vh;
+    color:#fff;
+    background:#11140f;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-3;
+    background-image:
+        linear-gradient(rgba(10,12,8,.48),rgba(10,12,8,.72)),
+        url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=85");
+    background-size:cover;
+    background-position:center;
+    filter:saturate(.9);
+    transform:scale(1.03);
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:radial-gradient(circle at 50% 20%,rgba(255,211,58,.13),transparent 38%);
+    pointer-events:none;
+}
+
+button,input{font:inherit}
+
+button{cursor:pointer}
+
+.page{
+    width:min(100%,720px);
+    margin:0 auto;
+    padding:18px 14px 30px;
+}
+
+.theme-bar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 16px;
+    margin:0 0 16px;
+    border:1px solid var(--line);
+    border-radius:42px;
+    background:rgba(42,45,36,.48);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+
+.theme-title{
+    min-width:105px;
+    font-size:14px;
+    line-height:1.35;
+    font-weight:900;
+    letter-spacing:.6px;
+}
+
+.theme-title span{
+    color:var(--accent);
+}
+
+.theme-list{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    flex:1;
+}
+
+.theme-list::-webkit-scrollbar{display:none}
+
+.theme{
+    width:54px;
+    height:54px;
+    flex:0 0 54px;
+    border-radius:50%;
+    border:3px solid transparent;
+    padding:2px;
+    background:transparent;
+}
+
+.theme.active{border-color:var(--accent)}
+
+.theme img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50%;
+    display:block;
+}
+
+.editor{
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:34px;
+    padding:26px 28px 22px;
+    background:linear-gradient(145deg,rgba(42,44,34,.74),rgba(17,20,17,.58));
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    box-shadow:0 25px 80px rgba(0,0,0,.42);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin:8px 10px 24px;
+}
+
+.logo{
+    width:64px;
+    height:64px;
+    flex:0 0 64px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:linear-gradient(135deg,#5367ff,#8939e8);
+    box-shadow:0 8px 28px rgba(100,70,255,.28);
+    font-size:34px;
+}
+
+.brand h1{
+    font-size:clamp(27px,6vw,40px);
+    line-height:1;
+    font-weight:900;
+    letter-spacing:-1.4px;
+}
+
+.brand p{
+    margin-top:7px;
+    color:#d1d1d1;
+    font-size:17px;
+}
+
+.upgrade{
+    width:100%;
+    border:0;
+    border-radius:32px;
+    padding:15px 18px;
+    background:linear-gradient(100deg,#ffdf23,#eda800);
+    color:#090909;
+    font-size:18px;
+    font-weight:900;
+    box-shadow:0 9px 25px rgba(255,193,0,.32);
+    transition:.2s;
+}
+
+.upgrade:active{transform:scale(.98)}
+
+.mode{
+    position:relative;
+    display:flex;
+    margin:58px auto 42px;
+    width:min(100%,450px);
+    padding:5px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:38px;
+    background:rgba(255,255,255,.035);
+}
+
+.mode-slider{
+    position:absolute;
+    top:5px;
+    bottom:5px;
+    left:5px;
+    width:calc(50% - 5px);
+    border-radius:34px;
+    background:rgba(220,220,220,.36);
+    border:1px solid rgba(255,255,255,.24);
+    transition:.28s ease;
+}
+
+.mode button{
+    position:relative;
+    z-index:2;
+    width:50%;
+    padding:12px;
+    border:0;
+    background:transparent;
+    color:rgba(255,255,255,.5);
+    font-size:22px;
+    font-weight:800;
+}
+
+.mode button.active{color:#fff}
+
+.upload{
+    min-height:410px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    border:3px dashed rgba(255,255,255,.34);
+    border-radius:30px;
+    padding:35px 25px;
+    background:rgba(30,31,27,.22);
+    transition:.2s;
+}
+
+.upload:active{
+    background:rgba(255,255,255,.07);
+}
+
+.upload-icon{
+    width:110px;
+    height:110px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:rgba(160,160,150,.20);
+    margin-bottom:32px;
+}
+
+.upload-icon svg{
+    width:58px;
+    height:58px;
+    fill:var(--accent);
+}
+
+.upload h2{
+    font-size:31px;
+    margin-bottom:14px;
+}
+
+.upload p{
+    max-width:390px;
+    color:rgba(255,255,255,.63);
+    font-size:20px;
+    line-height:1.45;
+}
+
+input[type=file]{display:none}
+
+.preview-wrap{display:none}
+
+.preview{
+    width:100%;
+    min-height:260px;
+    max-height:58vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-radius:24px;
+    background:#000;
+    margin-bottom:10px;
+    border:1px solid rgba(255,255,255,.12);
+}
+
+.preview img,.preview video{
+    display:block;
+    max-width:100%;
+    max-height:58vh;
+    object-fit:contain;
+    transition:.25s ease;
+}
+
+.replace{
+    display:block;
+    margin:6px auto 0;
+    border:0;
+    background:none;
+    color:#ff7d7d;
+    font-size:13px;
+}
+
+.features{
+    margin-top:42px;
+}
+
+.section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#bdbdbd;
+    font-size:21px;
+    font-weight:900;
+    letter-spacing:1px;
+    margin-bottom:18px;
+}
+
+.section-title .spark{color:var(--accent);font-size:25px}
+
+.filters{
+    display:flex;
+    gap:16px;
+    overflow-x:auto;
+    padding:0 0 15px;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.25) transparent;
+}
+
+.filter{
+    width:180px;
+    min-width:180px;
+    height:165px;
+    border:2px solid transparent;
+    border-radius:25px;
+    background:rgba(33,35,31,.42);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    transition:.2s;
+    padding:10px;
+}
+
+.filter.active{
+    border-color:#377ff2;
+    background:rgba(47,77,104,.30);
+    box-shadow:0 0 0 1px rgba(55,127,242,.15);
+}
+
+.filter.premium{
+    background:linear-gradient(145deg,rgba(255,205,35,.10),rgba(255,120,0,.08));
+}
+
+.filter .icon{
+    width:44px;
+    height:44px;
+    display:grid;
+    place-items:center;
+    font-size:30px;
+}
+
+.filter strong{
+    font-size:17px;
+    text-align:center;
+    line-height:1.25;
+}
+
+.filter small{
+    color:#aaa;
+    font-size:12px;
+}
+
+.download{
+    width:100%;
+    margin-top:38px;
+    padding:18px 20px;
+    border:1px solid rgba(30,220,145,.35);
+    border-radius:18px;
+    background:linear-gradient(110deg,#0d704e,#075536);
+    color:#ddd;
+    font-size:24px;
+    font-weight:900;
+    box-shadow:0 12px 28px rgba(0,80,55,.22);
+}
+
+.download:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.progress{
+    display:none;
+    margin-top:14px;
+}
+
+.progress-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:#bbb;
+    margin-bottom:5px;
+}
+
+.bar{
+    height:8px;
+    border-radius:20px;
+    overflow:hidden;
+    background:#30332e;
+}
+
+.bar div{
+    height:100%;
+    width:0;
+    background:var(--accent);
+    transition:.15s;
+}
+
+.credit{
+    text-align:center;
+    margin-top:24px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,.10);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:1.5px;
+}
+
+.credit span{
+    background:linear-gradient(90deg,#63a5ff,#b184ff,#ffd928);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(0,0,0,.78);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+}
+
+.modal.show{display:flex}
+
+.modal-box{
+    width:min(100%,390px);
+    padding:24px;
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:24px;
+    background:rgba(25,28,23,.96);
+    box-shadow:0 25px 80px rgba(0,0,0,.55);
+}
+
+.modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.modal-head h3{
+    color:#ffd21c;
+    font-size:20px;
+}
+
+.close{
+    width:32px;
+    height:32px;
+    border:0;
+    border-radius:50%;
+    background:rgba(255,255,255,.1);
+    color:#fff;
+}
+
+.modal-box p{
+    color:#aaa;
+    font-size:13px;
+    line-height:1.5;
+    margin:12px 0;
+}
+
+.buy{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    color:#fff;
+    background:#18b96d;
+    padding:13px;
+    border-radius:12px;
+    font-weight:900;
+    margin:12px 0;
+}
+
+.code-row{
+    display:flex;
+    gap:7px;
+}
+
+.code-row input{
+    min-width:0;
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #444;
+    background:#080908;
+    color:#fff;
+    outline:none;
+}
+
+.code-row button{
+    padding:12px 15px;
+    border:0;
+    border-radius:10px;
+    background:#10b981;
+    color:#fff;
+    font-weight:800;
+}
+
+.error{
+    display:none;
+    color:#ff7777 !important;
+    margin:8px 0 0 !important;
+}
+
+@media(max-width:560px){
+    .page{padding:8px 0 25px}
+    .theme-bar{margin:0 8px 12px;padding:9px 13px}
+    .editor{
+        margin:0 8px;
+        padding:22px 18px 20px;
+        border-radius:30px;
+    }
+    .brand{margin:3px 6px 22px}
+    .logo{width:58px;height:58px;flex-basis:58px}
+    .brand h1{font-size:29px}
+    .brand p{font-size:15px}
+    .upgrade{font-size:17px;padding:14px 10px}
+    .mode{margin:48px auto 42px}
+    .upload{min-height:390px}
+    .upload h2{font-size:29px}
+    .upload p{font-size:18px}
+    .filter{width:160px;min-width:160px;height:160px}
+    .download{font-size:21px}
+}
+
+@media(min-width:900px){
+    .page{padding-top:28px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="theme-bar">
+        <div class="theme-title"><span>🍃</span> TEMA<br>ALAM:</div>
+
+        <div class="theme-list">
+            <button class="theme active" data-bg="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=500&q=80">
+                <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=160&q=80" alt="Tema alam">
+            </button>
+            <button class="theme" data-bg="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80">
+                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=80" alt="Tema gunung">
+            </button>
+            <button class="theme" data-bg="https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=500&q=80">
+                <img src="https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=160&q=80" alt="Tema hutan">
+            </button>
+            <button class="theme" data-bg="https://images.unsplash.com/photo-1473445361085-b9a07f55608b?auto=format&fit=crop&w=500&q=80">
+                <img src="https://images.unsplash.com/photo-1473445361085-b9a07f55608b?auto=format&fit=crop&w=160&q=80" alt="Tema pohon">
+            </button>
+            <button class="theme" data-bg="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=500&q=80">
+                <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=160&q=80" alt="Tema hutan">
+            </button>
+        </div>
+    </div>
+
+    <main class="editor">
+
+        <div class="brand">
+            <div class="logo"></div>
+            <div>
+                <h1>iXpert 15 Pro Max</h1>
+                <p>Studio Editor</p>
+            </div>
+        </div>
+
+        <button class="upgrade" onclick="openUp()">♛ &nbsp; UPGRADE KE iPHONE 18 PRO MAX</button>
+
+        <div class="mode">
+            <div class="mode-slider" id="modeSlider"></div>
+            <button id="videoTab" class="active" onclick="setMode('video')">Video</button>
+            <button id="photoTab" onclick="setMode('photo')">Foto</button>
+        </div>
+
+        <label class="upload" id="uploadArea" for="fileIn">
+            <div class="upload-icon" id="uploadIcon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M17 10.5V7.8c0-.45-.18-.88-.5-1.2L15.3 5.4A1.7 1.7 0 0 0 14.1 5H6.5A2.5 2.5 0 0 0 4 7.5v9A2.5 2.5 0 0 0 6.5 19h7A2.5 2.5 0 0 0 16 16.5v-2l4 2.5v-6l-4 2.5v-3Zm-2 6a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9Z"/>
+                </svg>
+            </div>
+            <h2 id="uploadTitle">Pilih Video</h2>
+            <p id="uploadDesc">Durasi bebas tanpa batas. Klik untuk membuka folder.</p>
+            <input id="fileIn" type="file" accept="video/*">
+        </label>
+
+        <div class="preview-wrap" id="previewWrap">
+            <div class="preview" id="mediaBox"></div>
+            <button class="replace" onclick="resetMedia()">🗑 Ganti Media</button>
+        </div>
+
+        <section class="features">
+            <div class="section-title"><span class="spark">🪄</span> FITUR EDITOR</div>
+
+            <div class="filters">
+                <button class="filter active" onclick="applyFilter('normal',this)">
+                    <div class="icon">⊘</div>
+                    <strong>Original</strong>
+                </button>
+
+                <button class="filter" onclick="applyFilter('hd',this)">
+                    <div class="icon">🎥</div>
+                    <strong>HD Kamera<br>iP 15 PM</strong>
+                </button>
+
+                <button class="filter" onclick="applyFilter('stabil',this)">
+                    <div class="icon">📹</div>
+                    <strong>Stabil<br>Gerak</strong>
+                </button>
+
+                <button class="filter" onclick="applyFilter('cinema',this)">
+                    <div class="icon">🎬</div>
+                    <strong>Cinematic</strong>
+                </button>
+
+                <button class="filter" id="slowFilter" onclick="applyFilter('slow',this)">
+                    <div class="icon">🏃</div>
+                    <strong>Slowmo</strong>
+                </button>
+
+                <button class="filter premium" id="realFilter" style="display:none" onclick="applyFilter('real',this)">
+                    <div class="icon">👁️</div>
+                    <strong>Realistis 18</strong>
+                </button>
+
+                <button class="filter premium" id="sunsetFilter" style="display:none" onclick="applyFilter('sunset',this)">
+                    <div class="icon">🌅</div>
+                    <strong>Sunset</strong>
+                </button>
+            </div>
+        </section>
+
+        <button class="download" id="downloadBtn" onclick="startDownload()" disabled>
+            ⇩ &nbsp; Render &amp; Download
+        </button>
+
+        <div class="progress" id="progress">
+            <div class="progress-row">
+                <span>Render...</span>
+                <span id="percent">0%</span>
+            </div>
+            <div class="bar"><div id="barIn"></div></div>
+        </div>
+
+        <div class="credit">BY <span>ETWARD GABRIEL AGUSTINUS SILABAN</span></div>
+    </main>
+</div>
+
+<div class="modal" id="upgradeModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>iPhone 18 Pro Max</h3>
+            <button class="close" onclick="closeUp()">✕</button>
+        </div>
+
+        <p>Unlock filter premium untuk membuka Realistis 18 dan Sunset.</p>
+
+        <a class="buy" href="https://wa.me/628318067970?text=AKSES%20PREMIUM%2015K" target="_blank" rel="noopener">
+            💬 BUY PREMIUM 15K
+        </a>
+
+        <div class="code-row">
+            <input id="codeIn" type="text" inputmode="numeric" maxlength="8" placeholder="Kode rahasia">
+            <button onclick="checkCode()">Klaim</button>
+        </div>
+
+        <p class="error" id="codeErr">Kode salah!</p>
+    </div>
+</div>
+
+<script>
+let mode = "video";
+let isPremium = false;
+let fileURL = null;
+let currentFile = null;
+let currentFilter = "normal";
+
+const fileIn = document.getElementById("fileIn");
+const uploadArea = document.getElementById("uploadArea");
+const uploadTitle = document.getElementById("uploadTitle");
+const uploadDesc = document.getElementById("uploadDesc");
+const uploadIcon = document.getElementById("uploadIcon");
+const previewWrap = document.getElementById("previewWrap");
+const mediaBox = document.getElementById("mediaBox");
+const downloadBtn = document.getElementById("downloadBtn");
+const modeSlider = document.getElementById("modeSlider");
+
+function setMode(nextMode){
+    mode = nextMode;
+
+    const isVideo = mode === "video";
+
+    modeSlider.style.transform = isVideo ? "translateX(0)" : "translateX(100%)";
+    document.getElementById("videoTab").classList.toggle("active",isVideo);
+    document.getElementById("photoTab").classList.toggle("active",!isVideo);
+
+    fileIn.accept = isVideo ? "video/*" : "image/*";
+    uploadTitle.textContent = isVideo ? "Pilih Video" : "Pilih Foto";
+    uploadDesc.textContent = isVideo
+        ? "Durasi bebas tanpa batas. Klik untuk membuka folder."
+        : "Pilih foto terbaikmu. Klik untuk membuka folder.";
+
+    document.getElementById("slowFilter").style.display = isVideo ? "flex" : "none";
+
+    if(currentFile){
+        resetMedia();
+    }
+}
+
+fileIn.addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+
+    if(fileURL) URL.revokeObjectURL(fileURL);
+
+    currentFile = file;
+    fileURL = URL.createObjectURL(file);
+
+    uploadArea.style.display = "none";
+    previewWrap.style.display = "block";
+    mediaBox.innerHTML = "";
+
+    let media;
+
+    if(mode === "video"){
+        media = document.createElement("video");
+        media.src = fileURL;
+        media.controls = true;
+        media.loop = true;
+        media.playsInline = true;
+        media.preload = "metadata";
+    }else{
+        media = document.createElement("img");
+        media.src = fileURL;
+        media.alt = "Foto yang dipilih";
+    }
+
+    media.id = "mainMedia";
+    mediaBox.appendChild(media);
+
+    currentFilter = "normal";
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    document.querySelector(".filter").classList.add("active");
+
+    downloadBtn.disabled = false;
+});
+
+function resetMedia(){
+    previewWrap.style.display = "none";
+    uploadArea.style.display = "flex";
+    mediaBox.innerHTML = "";
+
+    if(fileURL){
+        URL.revokeObjectURL(fileURL);
+        fileURL = null;
+    }
+
+    currentFile = null;
+    fileIn.value = "";
+    downloadBtn.disabled = true;
+    currentFilter = "normal";
+
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    document.querySelector(".filter").classList.add("active");
+}
+
+function applyFilter(type, button){
+    const media = document.getElementById("mainMedia");
+    if(!media) return;
+
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    currentFilter = type;
+    media.style.filter = "";
+    mediaBox.style.boxShadow = "none";
+
+    if(mode === "video") media.playbackRate = 1;
+
+    switch(type){
+        case "hd":
+            media.style.filter = "contrast(1.18) saturate(1.35) brightness(1.05)";
+            break;
+
+        case "stabil":
+            media.style.filter = "contrast(1.08) saturate(1.05)";
+            break;
+
+        case "cinema":
+            media.style.filter = "contrast(1.28) saturate(1.15) sepia(.16)";
+            mediaBox.style.boxShadow = "inset 0 45px 45px #000,inset 0 -45px 45px #000";
+            break;
+
+        case "slow":
+            if(mode === "video"){
+                media.style.filter = "blur(.2px)";
+                media.playbackRate = .5;
+            }
+            break;
+
+        case "real":
+            media.style.filter = "contrast(1.35) saturate(1.55) brightness(1.04)";
+            break;
+
+        case "sunset":
+            media.style.filter = "sepia(.48) saturate(1.65) hue-rotate(-9deg) contrast(1.18)";
+            break;
+
+        default:
+            media.style.filter = "none";
+    }
+}
+
+function startDownload(){
+    if(!fileURL || !currentFile) return;
+
+    const progress = document.getElementById("progress");
+    const bar = document.getElementById("barIn");
+    const percent = document.getElementById("percent");
+
+    progress.style.display = "block";
+    bar.style.width = "0%";
+    percent.textContent = "0%";
+
+    let p = 0;
+
+    const timer = setInterval(() => {
+        p += isPremium ? 20 : 10;
+
+        if(p >= 100){
+            p = 100;
+            clearInterval(timer);
+
+            if(mode === "photo" && currentFilter !== "normal"){
+                downloadPhotoWithFilter();
+            }else{
+                downloadOriginal();
+            }
+
+            percent.textContent = "Selesai!";
+
+            setTimeout(() => {
+                progress.style.display = "none";
+            },1200);
+        }else{
+            percent.textContent = p + "%";
+        }
+
+        bar.style.width = p + "%";
+    },isPremium ? 80 : 130);
+}
+
+function downloadOriginal(){
+    const a = document.createElement("a");
+    a.href = fileURL;
+    a.download = (mode === "video" ? "ixpert_video_" : "ixpert_foto_") + Date.now() + (mode === "video" ? ".mp4" : ".jpg");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
+
+function downloadPhotoWithFilter(){
+    const img = document.getElementById("mainMedia");
+    if(!img) return downloadOriginal();
+
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth || 1200;
+    canvas.height = img.naturalHeight || 800;
+
+    const ctx = canvas.getContext("2d");
+
+    const filters = {
+        hd: "contrast(1.18) saturate(1.35) brightness(1.05)",
+        stabil: "contrast(1.08) saturate(1.05)",
+        cinema: "contrast(1.28) saturate(1.15) sepia(.16)",
+        real: "contrast(1.35) saturate(1.55) brightness(1.04)",
+        sunset: "sepia(.48) saturate(1.65) hue-rotate(-9deg) contrast(1.18)"
+    };
+
+    ctx.filter = filters[currentFilter] || "none";
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
+    canvas.toBlob(blob => {
+        if(!blob) return downloadOriginal();
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ixpert_foto_" + Date.now() + ".jpg";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url),1000);
+    },"image/jpeg",.94);
+}
+
+function openUp(){
+    document.getElementById("upgradeModal").classList.add("show");
+}
+
+function closeUp(){
+    document.getElementById("upgradeModal").classList.remove("show");
+}
+
+function checkCode(){
+    const code = document.getElementById("codeIn").value.trim();
+    const error = document.getElementById("codeErr");
+
+    if(code === "20131408"){
+        isPremium = true;
+
+        document.getElementById("realFilter").style.display = "flex";
+        document.getElementById("sunsetFilter").style.display = "flex";
+
+        error.style.display = "none";
+        document.getElementById("codeIn").value = "";
+        closeUp();
+
+        alert("✅ Premium aktif! Filter iPhone 18 Pro Max terbuka.");
+    }else{
+        error.style.display = "block";
+    }
+}
+
+document.getElementById("upgradeModal").addEventListener("click",function(e){
+    if(e.target === this) closeUp();
+});
+
+document.querySelectorAll(".theme").forEach(theme => {
+    theme.addEventListener("click",function(){
+        document.querySelectorAll(".theme").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+
+        const bg = this.dataset.bg;
+        document.body.style.setProperty(
+            "--dynamic-bg",
+            "url('" + bg.replace(/'/g,"\\'") + "')"
+        );
+        document.body.style.setProperty(
+            "background-image",
+            "linear-gradient(rgba(10,12,8,.48),rgba(10,12,8,.72)),url('" + bg.replace(/'/g,"\\'") + "')"
+        );
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+    });
+});
+
+setMode("video");
+</script>
+
+</body>
+</html>
